@@ -85,33 +85,33 @@ _loop:
  jz      EXIT            ; если да - выходим
  cmp     eax, ' '
  jz      _space
- lea     edi, morse               ; çàãðóæàåì àäðåñ òàáëèöû â ðåãèñòð di
- mov     ecx, tab_length ; ðàçìåð òàáëèöû
- repne   scasb           ; èùåì â òàáëèöå ñèìâîë íàáðàííûé ñ êëàâèàòóðû
- jnz     _loop           ; ñèìâîë íå íàéäåí
- mov     esi, edi        ; si = di - ïîçèöèÿ â òàáëèöå íàéäåíîãî ñèìâîëà
+ lea     edi, morse               ; загружаем адрес таблицы в регистр di
+ mov     ecx, tab_length ; размер таблицы
+ repne   scasb           ; ищем в таблице символ набранный с клавиатуры
+ jnz     _loop           ; символ не найден
+ mov     esi, edi        ; si = di - позиция в таблице найденого символа
 _out_morseCode:
         invoke   Sleep, point_delay
-        lodsb                   ; çàãðóæàåì öèôðó èç òàáëèöû
-        cmp     al, 1           ; öèôðà 1?
-        jz      _point          ; çíà÷èò âûâîäèì òî÷êó
+        lodsb                   ; загружаем цифру из таблицы
+        cmp     al, 1           ; цифра 1?
+        jz      _point          ; значит выводим точку
         cmp     al, 2           ; 2?
-        jz      _dash           ; âûâîäèì òèðå
+        jz      _dash           ; выводим тире
         or      al, al          ; 0?
-        jz      _loop           ; äîøëè äî êîíöà ñòðîêè
-        jmp     _loop           ; íà ýòó ñòðîêó ïåðåéäåì òîëüêî åñëè åñòü îøèáêà â òàáëèöå
+        jz      _loop           ; дошли до конца строки
+        jmp     _loop           ; на эту строку перейдем только если есть ошибка в таблице
 _point:
         
         invoke WriteConsole, hOutPut, addr point, 1, addr nWriten,NULL
-        mov     edx, point_delay ; óñòàíàâëèâàåì ïàóçó ñîîòâåòñòâóþùóþ òî÷êå
-        invoke   Beep, 1000, point_delay ; ïèùèì
-        jmp     _out_morseCode  ; íà ñëåäóþùèé ñèìâîë â òàáëèöå
+        mov     edx, point_delay ; устанавливаем паузу соответствующую точке
+        invoke   Beep, 1000, point_delay ; пищим
+        jmp     _out_morseCode  ; на следующий символ в таблице
 _dash:
         invoke WriteConsole, hOutPut, addr dash, 1, addr nWriten,NULL
  
-        mov     edx, dash_delay  ;  ïàóçà äëÿ òèðå
-        invoke   Beep, 1000, dash_delay ; çâó÷èì
-        jmp     _out_morseCode  ; íà ñëåäóþùèé ñèìâîë â òàáëèöå
+        mov     edx, dash_delay  ;  пауза для тире
+        invoke   Beep, 1000, dash_delay ; звучим
+        jmp     _out_morseCode  ; на следующий символ в таблице
 _space:
         invoke WriteConsole, hOutPut, addr space, 1, addr nWriten,NULL
         jmp     _loop
